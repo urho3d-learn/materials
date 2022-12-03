@@ -1,0 +1,10 @@
+<material>
+    <technique name="Techniques/DiffNormalSpec.xml" />
+
+    <texture unit="diffuse" name="Textures/abaddon_mount_color.tga" />
+
+    <texture unit="specular" name="Textures/abaddon_mount_specmask.tga" />
+    <parameter name="MatSpecColor" value="5 5 5 50" />
+
+    <texture unit="normal" name="Textures/abaddon_mount_normal.tga" />
+</material>

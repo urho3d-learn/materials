@@ -1,0 +1,5 @@
+# Формат файла: https://git-scm.com/docs/gitignore
+
+# Папки, которые не будут отправляться в репозиторий
+/repo/
+/build_vs/
