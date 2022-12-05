@@ -86,3 +86,133 @@ Urho3D поддерживает как OpenGL, так и DirectX, поэтому
 
 В папке CoreData/Shaders/GLSL множество файлов, но вам стоит обратить особое внимание на один из них — LitSolid.glsl. Именно этот шейдер используется для подавляющего большинства материалов. Urho3D использует метод убершейдеров, то есть из огромного универсального шейдера LitSolid.glsl посредством дефайнов выбрасываются ненужные куски и получается маленький быстрый специализированный шейдер. Наборы дефайнов указываются в техниках, а некоторые дефайны добавляются самим движком.
 
+## Возвращаемся к нашему коню
+
+На данный момент Urho3D поддерживает 3 метода рендерина: Forward (традиционный), Light Pre-Pass и Deferred. Различия между ними являются темой для отдельного разговора, поэтому просто ограничимся методом Forward, который используется по умолчанию и описан в рендерпасе CoreData/RenderPaths/Forward.xml.
+
+После экспорта из Блендера и ручной доработки мы получили материал [2_abaddon_tuned.xml](Materials/demo/MyData/Materials/2_abaddon_tuned.xml).
+
+```
+<material>
+    <technique name="Techniques/DiffNormalSpecEmissive.xml" />
+
+    <texture unit="diffuse" name="Textures/abaddon_mount_color.tga" />
+
+    <texture unit="specular" name="Textures/abaddon_mount_specmask.tga" />
+    <parameter name="MatSpecColor" value="5 5 5 50" />
+
+    <texture unit="emissive" name="Textures/abaddon_mount_selfillummask.tga" />
+    <parameter name="MatEmissiveColor" value="1 1 1" />
+
+    <texture unit="normal" name="Textures/abaddon_mount_normal.tga" />
+</material>
+```
+
+Этот материал использует технику Techniques/DiffNormalSpecEmissive.xml
+
+```
+<technique vs="LitSolid" ps="LitSolid" psdefines="DIFFMAP">
+    <pass name="base" psdefines="EMISSIVEMAP" />
+    <pass name="light" vsdefines="NORMALMAP" psdefines="NORMALMAP SPECMAP" depthtest="equal" depthwrite="false" blend="add" />
+    <pass name="prepass" vsdefines="NORMALMAP" psdefines="PREPASS NORMALMAP SPECMAP" />
+    <pass name="material" psdefines="MATERIAL SPECMAP EMISSIVEMAP" depthtest="equal" depthwrite="false" />
+    <pass name="deferred" vsdefines="NORMALMAP" psdefines="DEFERRED NORMALMAP SPECMAP EMISSIVEMAP" />
+    <pass name="depth" vs="Depth" ps="Depth" />
+    <pass name="shadow" vs="Shadow" ps="Shadow" />
+</technique>
+```
+
+Так как мы будем модифицировать технику, то скопируйте ее в отдельный файл Techniques/MyTechnique.xml, чтобы не затронуть другие материалы, которые могут тоже использовать эту технику. В материале также измените название используемой техники.
+
+Техника использует стандартный для материалов шейдер LitSolid.glsl. Так как мы будем изменять этот шейдер, то скопируйте его в Shaders/GLSL/MyLitSolid.glsl. Также измените имя используемого шейдера в технике. Заодно эту технику можно упростить, выкинув лишнее. Так как проходы «prepass», «material», «deferred» и «depth» отсутствуют в рендерпасе Forward (они определены в других рендерпасах), то они никогда не будут использоваться. Однако оставьте проход «shadow». Хотя он и отсутствует в рендерпасе, но он является встроенным проходом и прописан в самом движке. Без него конь не будет отбрасывать тени.
+
+В результате имеем Techniques/MyTechnique.xml
+
+```
+<technique vs="MyLitSolid" ps="MyLitSolid" psdefines="DIFFMAP">
+    <pass name="base" psdefines="EMISSIVEMAP" />
+    <pass name="light" vsdefines="NORMALMAP" psdefines="NORMALMAP SPECMAP" depthtest="equal" depthwrite="false" blend="add" />
+    <pass name="shadow" vs="Shadow" ps="Shadow" />
+</technique>
+```
+
+Давайте теперь поработаем с нашим шейдером Shaders/GLSL/MyLitSolid.glsl и изменим способ использования карты свечения на нужный нам. Дефайн EMISSIVEMAP (как раз и сигнализирующий, что материал должен определять карту свечения) в шейдере присутствует в нескольких местах, а так как разобрать шейдер построчно в рамках статьи не получится, то мы пойдем другим путем. Дефайны DEFERRED, PREPASS и MATERIAL никогда не будут определены в шейдере, так как проходы, в которых они определяются, мы удалили из техники как неиспользуемые. Поэтому смело удаляем обрамленный ими код. Размер шейдера уменьшился на треть. Дефайн EMISSIVEMAP остался только в одном месте.
+
+Давайте умножим карту свечения на диффузный цвет. Замените строку
+
+```
+finalColor += cMatEmissiveColor * texture2D(sEmissiveMap, vTexCoord.xy).rgb;
+```
+
+на строку
+
+```
+finalColor += cMatEmissiveColor * texture2D(sEmissiveMap, vTexCoord.xy).rgb * diffColor.rgb;
+```
+
+Теперь ноги лошади светятся правильным голубым цветом.
+
+Для большей красоты давайте добавим блум-эффект (ореол вокруг ярких частей изображения). Он реализуется двумя строчками в [скрипте](demo/MyData/Scripts/Main.as):
+
+```
+// Включаем HDR-рендеринг
+renderer.hdrRendering = true;
+
+// Добавляем эффект постобработки
+viewport.renderPath.Append(cache.GetResource("XMLFile", "PostProcess/BloomHDR.xml"));
+```
+
+Обратите внимание, что эффект постобработки добавляется в конец рендерпаса. Вы можете дописать его прямо в файл.
+
+## Rim Light
+
+Подсветка краев модели — фейковая техника, симулирующая свет, падающий на модель сзади. В движке Source 2 используется отдельная маска для обозначения частей модели, на которые нужно накладывать данный эффект.
+
+Для того, чтобы передать текстуру в шейдер, выберем неиспользуемый текстурный юнит. В нашем материале не используется карта окружения, поэтому будем использовать ее слот. Также в шейдере нам понадобятся два параметра RimColor и RimPower, поэтому сразу добавим и их. Итоговый материал выглядит так. Это может иногда сбивать с толку, но имя текстурного юнита не обязательно должно соответствовать его использованию. Вы вольны передавать через текстурные юниты что угодно и применять это в своих шейдерах как угодно.
+
+Имя юниформа в шейдере будет отличаться от имени параметра в материале на префикс «c» (const): параметр RimColor станет юниформом cRimColor, а параметр RimPower станет юниформом cRimPower.
+
+```
+uniform float cRimPower;
+uniform vec3 cRimColor;
+```
+
+А так выглядит сама реализация эффекта:
+
+```
+// RIM LIGHT
+
+// Направление = позиция камеры - позиция фрагмента.
+vec3 viewDir = normalize(cCameraPosPS - vWorldPos.xyz);
+
+// Скалярное произведение параллельных единичных векторов = 1.
+// Скалярное произведение перпендикулярных векторов = 0.
+// То есть, если представить шар, то его середина будет белой
+// (так как нормаль параллельна линии взгляда), а к краям темнеть.
+// Нам же наоборот нужны светлые края, поэтому скалярное произведение вычитается из единицы.
+float rimFactor = 1.0 - clamp(dot(normal, viewDir), 0.0, 1.0);
+
+// Если cRimPower > 1, то подсветка сжимается к краям.
+// Если cRimPower < 1, то подсветка наоборот становится более равномерной.
+// При cRimPower = 0 вся модель будет равномерно окрашена, так как любое число в степени ноль = 1.
+rimFactor = pow(rimFactor, cRimPower);
+
+// Проверяем, нужно ли использовать карту подсветки.
+#ifdef RIMMAP
+    // Учитываем карту и цвет подсветки.
+    finalColor += texture2D(sEnvMap, vTexCoord.xy).rgb * cRimColor * rimFactor;
+#else
+    finalColor += cRimColor * rimFactor;
+#endif
+```
+
+Обратите внимание на дефайн RIMMAP. Возможно вам захочется не использовать карту подсветки, а просто наложить эффект на всю модель. В этом случае вы просто не определяете дефайн RIMMAP в технике. Кстати, не забудьте определить дефайн RIMMAP в технике :) Итоговая техника выглядит [так](demo/MyData/Techniques/MyTechnique.xml), а шейдер — [так](demo/MyData/Shaders/GLSL/MyLitSolid.glsl).
+
+## Литература
+
+* https://urho3d-doxygen.github.io/doxygen/_rendering.html
+* https://urho3d-doxygen.github.io/doxygen/_a_p_i_differences.html
+* https://urho3d-doxygen.github.io/doxygen/_shaders.html
+* https://urho3d-doxygen.github.io/doxygen/_render_paths.html
+* https://urho3d-doxygen.github.io/doxygen/_materials.html
+* https://urho3d-doxygen.github.io/doxygen/_rendering_modes.html
