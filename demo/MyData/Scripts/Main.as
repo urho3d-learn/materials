@@ -49,10 +49,10 @@ void Start()
 
     // По умолчнию название материала берётся из файла
     // Models/abaddon_mount.txt, но можно перезаписать
-    horseObject.material = cache.GetResource("Material", "Materials/1_abaddon_exported.xml");
-    horseObject.material = cache.GetResource("Material", "Materials/2_abaddon_tuned.xml");
-    horseObject.material = cache.GetResource("Material", "Materials/3_abaddon_without_emissive.xml");
-    horseObject.material = cache.GetResource("Material", "Materials/4_abaddon_final.xml");
+    //horseObject.material = cache.GetResource("Material", "Materials/1_abaddon_exported.xml");
+    //horseObject.material = cache.GetResource("Material", "Materials/2_abaddon_tuned.xml");
+    //horseObject.material = cache.GetResource("Material", "Materials/3_abaddon_without_emissive.xml");
+    //horseObject.material = cache.GetResource("Material", "Materials/4_abaddon_final.xml");
 
     SubscribeToEvent("Update", "HandleUpdate");
 }
