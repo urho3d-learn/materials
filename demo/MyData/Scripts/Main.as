@@ -10,7 +10,7 @@ void Start()
 
     scene_ = Scene();
     scene_.CreateComponent("Octree");
-    
+
     Zone@ zone = scene_.CreateComponent("Zone");
     zone.boundingBox = BoundingBox(-1000.0f, 1000.0f);
     zone.ambientColor = Color(0.4f, 0.4f, 0.4f);
@@ -27,7 +27,7 @@ void Start()
     Camera@ camera = cameraNode.CreateComponent("Camera");
     cameraNode.position = Vector3(0.0f, 15.0f, -15.0f);
     cameraNode.LookAt(Vector3(0.0f, 5.0f, 0.0f));
-    
+
     Viewport@ viewport = Viewport(scene_, camera);
     viewport.renderPath.Append(cache.GetResource("XMLFile", "PostProcess/BloomHDR.xml"));
     viewport.renderPath.Append(cache.GetResource("XMLFile", "PostProcess/FXAA3.xml"));
@@ -63,7 +63,7 @@ void HandleUpdate(StringHash eventType, VariantMap& eventData)
     IntVector2 mouseMove = input.mouseMove;
     horseNode_.Rotate(Quaternion(0.0f, -timeStep * mouseMove.x * 5.0f, 0.0f));
     lightNode_.Rotate(Quaternion(0.0f, 10.0f * input.mouseMoveWheel, 0.0f), TransformSpace::World);
-    
+
     if (input.keyDown[KEY_ESCAPE])
         engine.Exit();
 }
