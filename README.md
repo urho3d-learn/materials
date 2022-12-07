@@ -216,3 +216,5 @@ rimFactor = pow(rimFactor, cRimPower);
 * https://urho3d-doxygen.github.io/doxygen/_render_paths.html
 * https://urho3d-doxygen.github.io/doxygen/_materials.html
 * https://urho3d-doxygen.github.io/doxygen/_rendering_modes.html
+
+*Старая версия демки: <https://github.com/1vanK/Urho3DHabrahabr05>.*
