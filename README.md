@@ -90,7 +90,7 @@ Urho3D поддерживает как OpenGL, так и DirectX, поэтому
 
 На данный момент Urho3D поддерживает 3 метода рендерина: Forward (традиционный), Light Pre-Pass и Deferred. Различия между ними являются темой для отдельного разговора, поэтому просто ограничимся методом Forward, который используется по умолчанию и описан в рендерпасе CoreData/RenderPaths/Forward.xml.
 
-После экспорта из Блендера и ручной доработки мы получили материал [2_abaddon_tuned.xml](Materials/demo/MyData/Materials/2_abaddon_tuned.xml).
+После экспорта из Блендера и ручной доработки мы получили материал [2_abaddon_tuned.xml](Materials/demo/MyData/Materials/2_abaddon_tuned.xml):
 
 ```
 <material>
@@ -108,7 +108,7 @@ Urho3D поддерживает как OpenGL, так и DirectX, поэтому
 </material>
 ```
 
-Этот материал использует технику Techniques/DiffNormalSpecEmissive.xml
+Этот материал использует технику Techniques/DiffNormalSpecEmissive.xml:
 
 ```
 <technique vs="LitSolid" ps="LitSolid" psdefines="DIFFMAP">
