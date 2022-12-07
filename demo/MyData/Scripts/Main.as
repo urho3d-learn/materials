@@ -48,7 +48,7 @@ void Start()
     horseObject.castShadows = true;
 
     // По умолчнию название материала берётся из файла
-    // Models/abaddon_mount.txt, но можно перезаписать
+    // Models/abaddon_mount.txt, но материал можно заменить
     //horseObject.material = cache.GetResource("Material", "Materials/1_abaddon_exported.xml");
     //horseObject.material = cache.GetResource("Material", "Materials/2_abaddon_tuned.xml");
     //horseObject.material = cache.GetResource("Material", "Materials/3_abaddon_without_emissive.xml");
