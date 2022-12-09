@@ -210,12 +210,12 @@ rimFactor = pow(rimFactor, cRimPower);
 
 ## Литература
 
-* https://urho3d-doxygen.github.io/doxygen/_rendering.html
-* https://urho3d-doxygen.github.io/doxygen/_a_p_i_differences.html
-* https://urho3d-doxygen.github.io/doxygen/_shaders.html
-* https://urho3d-doxygen.github.io/doxygen/_render_paths.html
-* https://urho3d-doxygen.github.io/doxygen/_materials.html
-* https://urho3d-doxygen.github.io/doxygen/_rendering_modes.html
+* https://urho3d-doxygen.github.io/1_9_0_plus/_rendering.html
+* https://urho3d-doxygen.github.io/1_9_0_plus/_a_p_i_differences.html
+* https://urho3d-doxygen.github.io/1_9_0_plus/_shaders.html
+* https://urho3d-doxygen.github.io/1_9_0_plus/_render_paths.html
+* https://urho3d-doxygen.github.io/1_9_0_plus/_materials.html
+* https://urho3d-doxygen.github.io/1_9_0_plus/_rendering_modes.html
 
 ---
 
