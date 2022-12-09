@@ -219,4 +219,6 @@ rimFactor = pow(rimFactor, cRimPower);
 
 ---
 
+*Следующий урок: <https://github.com/urho3d-learn/post-effects>.*
+
 *Старая версия демки: <https://github.com/1vanK/Urho3DHabrahabr05>.*
